@@ -1,1 +1,2 @@
 # leaflet-challenge
+In this project leaflet was used to make a map and visualize earthquake data. This earthquake data is updated every 5 minutes directly from the USGS website, specifically we used the USGS Geo JSON of the earthquakes of the past 7 days url to grab the data. Attributes of the earthquake such as the magnitude was used to depict it easily on the map with a different color and a different radius. IF the magnitude was larger the size of the circle would be larger and if the magnitude was larger the color of the circle would be a darker color.
