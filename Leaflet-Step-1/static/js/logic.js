@@ -8,35 +8,61 @@ var circles = []
   
 circle_group = L.layerGroup(circles)
 
-var streetmap = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+var light = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
       attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
       maxZoom: 18,
-      id: "mapbox.streets",
+      id: "mapbox.run-bike-hike",
       accessToken: API_KEY
     });
+    var comic = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+      attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+      maxZoom: 18,
+      id: "mapbox.high-contrast",
+      accessToken: API_KEY
+    });
+    var satilite = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
+      attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
+      maxZoom: 18,
+      id: "mapbox.streets-satellite",
+      accessToken: API_KEY
+    });
+
   
     // Define a baseMaps object to hold our base layers
-var layers = {
-  earthquakes: new L.LayerGroup()
+var earthquakes =  new L.LayerGroup();
+var tectonicplates = new L.layerGroup();
 
-};
+;
     // Create our map, giving it the streetmap and earthquakes layers to display on load
     var myMap = L.map("map", {
       center: [
         37.09, -105.71
       ],
       zoom: 5,
-      layers: [layers.earthquakes]
+      layers: []
     });
+    
+    earthquakes.addTo(myMap)
+
     //add our street map to map
-    streetmap.addTo(myMap);
+    comic.addTo(myMap);
+
+    //creating the base maps of the different maps 
+    var baseMaps ={
+      "Satellite" : satilite,
+      "Comic": comic,
+      "Light":light
+    
+    }
     //create an overlays object to add to the layer control
     var overlays = {
-      "Circle Feats": layers.earthquakes
+      "Earthquakes": earthquakes,
+      "Tectonicplates" : tectonicplates
     };
 
     // Create a layer control
     L.control.layers(null,overlays).addTo(myMap);
+    L.control.layers(baseMaps).addTo(myMap);
     // Create a legend to display information about our map
 
 
@@ -57,7 +83,7 @@ var layers = {
             
           })
           newCircle.bindPopup("<h1>Location:" + earthquake.properties.place + "</h1> <hr> <h3>Magnitued of the earthquake: " + earthquake.properties.mag + "</h3>");
-          newCircle.addTo(layers["earthquakes"])
+          newCircle.addTo(earthquakes)
           //create the legend!
 
         })
@@ -97,7 +123,7 @@ var layers = {
   
   var legend = L.control({position: 'bottomright'});
 
-legend.onAdd = function (myMap) {
+legend.onAdd = function () {
 
     var div = L.DomUtil.create('div', 'info legend'),
         grades = [0, 2, 3, 4, 5],
@@ -114,3 +140,16 @@ legend.onAdd = function (myMap) {
 };
 
 legend.addTo(myMap);
+
+d3.json("https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json",
+    function(platedata) {
+ 
+      L.geoJson(platedata, {
+        color: "orange",
+        weight: 2
+      })
+      .addTo(tectonicplates);
+
+      // add the tectonicplates layer to the map.
+      tectonicplates.addTo(myMap);
+    });
